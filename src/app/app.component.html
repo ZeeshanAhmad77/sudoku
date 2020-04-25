@@ -3,23 +3,26 @@
 </mat-toolbar>
 
 <div class="content-container">
+  <div class="action-container">
+    <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled">Solve</button>
+  </div>
   <div class="sudoku-container">
-    <ng-container class="row" *ngFor="let row of gridData; let rowIdx=index">
+    <div class="row" *ngFor="let row of gridData; let rowIdx=index">
       <span [ngClass]="{'cell': true, 
-                        'cell-fixed': (cell != 0),
-                        'grid-border-right':((cellIdx+1)%3==0), 
-                        'grid-border-left':(cellIdx%3==0),
-                        'grid-border-top':(rowIdx%3==0),
-                        'grid-border-bottom':((rowIdx+1)%3==0)
+                        'cell-fixed': (template[rowIdx][cellIdx] == 1),
+                        'grid-border-right':((cellIdx+1)%GRID_SIZE==0), 
+                        'grid-border-left':(cellIdx%GRID_SIZE==0),
+                        'grid-border-top':(rowIdx%GRID_SIZE==0),
+                        'grid-border-bottom':((rowIdx+1)%GRID_SIZE==0)
                       }" 
             *ngFor="let cell of row;let cellIdx=index">
-        <span *ngIf="cell==0">
-          <input class="inp" type="text" maxlength="1" (keypress)="onlyNumberKey($event)"/>
+        <span *ngIf="template[rowIdx][cellIdx]==0" [ngClass]="{'highlight-cell':(rowProcess==rowIdx && colProcess == cellIdx)}">
+          <input class="inp" [(ngModel)]="gridData[rowIdx][cellIdx]" type="text" maxlength="2" (keypress)="onlyNumberKey($event)"/>
         </span>
-        <span *ngIf="cell!=0">
+        <span *ngIf="template[rowIdx][cellIdx]!=0">
           {{cell}}
         </span>
       </span> 
-    </ng-container >
+    </div >
   </div>
 </div>
