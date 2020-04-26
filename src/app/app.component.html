@@ -3,7 +3,8 @@
 </mat-toolbar>
 
 <div class="action-container">
-  <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled">Solve</button>
+  <button mat-raised-button color="primary" (click)="generateSudokuPuzzle(SUDOKU_PROBLEM_GRID_MAX_SOLUTION)" [disabled]="isSolveDisabled || isGeneratingSudokuProblemDisabled">Generate</button>
+  <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled || isGeneratingSudokuProblemDisabled" style="margin-left:10px;">Solve</button>
   <button mat-raised-button color="primary" (click)="stopFindingSolutions()" [disabled]="!isSolveDisabled" style="margin-left:10px;">Stop</button>
   <button mat-raised-button color="primary" (click)="reset()" [disabled]="isSolveDisabled"  style="margin-left:10px;">Reset</button>
 </div>
@@ -28,7 +29,7 @@
       </span> 
     </div >
   </div>
-  <div class="solutions">
+  <div class="solutions" *ngIf="solutions.length>0">
     <div class="solutions-counter">Found {{solutions.length}} solutions</div>
     <div class="solutions-container">
       <span class="solution-container" *ngFor="let solution of solutions; let solIdx = index">
