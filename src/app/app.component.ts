@@ -8,20 +8,17 @@ import { Component } from '@angular/core';
 export class AppComponent {
   COUNT = 0;
   GRID_SIZE=3;
-
   GRID_LENGTH = this.GRID_SIZE * this.GRID_SIZE;
+
+  GRID_SIZE_LIST = [
+    {value:2, label:'4 x 4'},
+    {value:3, label:'9 x 9'},
+    {value:4, label:'16 x 16'}
+  ]
+
   done: boolean=false;
-  gridData = [
-    [0,0,6,8,0,2,0,0,5],
-    [0,0,0,0,3,0,7,0,0],
-    [0,0,0,0,0,0,8,2,4],
-    [1,0,0,4,8,0,0,0,0],
-    [0,9,0,0,0,0,0,0,0],
-    [0,3,0,0,1,0,2,5,0],
-    [4,5,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,6,0],
-    [0,0,0,1,7,0,0,3,0]
-  ];
+  message:string=null;
+  gridData = [];
 
   template=[];
   rowProcess=-1;
@@ -38,10 +35,21 @@ export class AppComponent {
     this.reset();
   }
 
+  onGridSizeChange(event){
+    this.GRID_SIZE=event.value;
+    this.GRID_LENGTH = this.GRID_SIZE * this.GRID_SIZE;
+    this.reset();
+  }
+
   reset(){
     this.gridData = this.generateEmptyGrid();
     this.solutions=[];
     this.done=false;
+    this.rowProcess=-1;
+    this.colProcess=-1;
+    this.isSolveDisabled=false;
+    this.isGeneratingSudokuProblemDisabled=false;
+    this.isStopClicked=false;
     this.generateTemplate();
   }
 
@@ -156,6 +164,9 @@ export class AppComponent {
         for(let col=0; col < this.GRID_LENGTH; col++){
           if(this.gridData[row][col] == 0){
             for(let value=1; value <= this.GRID_LENGTH; value++){
+              if(this.isStopClicked){
+                break;
+              }
               if(this.isPossible(value, row, col)){
                 // console.log(`possible in ${value} in (${row},${col}`);
                 this.gridData[row][col]=value;
@@ -175,6 +186,10 @@ export class AppComponent {
       this.solutions.push(JSON.parse(JSON.stringify(this.gridData)));
       if(this.isStopClicked || this.solutions.length == solutionCount){
         this.done=true;
+      }
+      //show this message only during solving sudoku
+      if(this.isSolveDisabled){
+        this.setMessage(`Found ${this.solutions.length} solutions`);
       }
     }
   
@@ -236,12 +251,11 @@ export class AppComponent {
   // if the solving algorthim find solution equal to 'solutionCount' argument passed then collect them.
   // the alogrithm will keep collecting such sudoku grids until all elements in the grid are removed.
   async generateSudokuPuzzle(solutionCount){
-
-    this.isGeneratingSudokuProblemDisabled = true;
-
+    
     // reset the grid
     this.reset();
-
+    
+    this.isGeneratingSudokuProblemDisabled = true;
     // generate a random fully qualified sudoko grids upto number passed as argument and select any random grid
     // the generated grid will be available in 'gridData'
     await this.generateRandomGrid(this.getRandomNumber(20));
@@ -265,6 +279,7 @@ export class AppComponent {
     // array to accumulate sudoko problem grid with exactly 'solutionCount' solutions.
     let generatedSudokuProblemGrids = [];
 
+    this.setMessage(`Running Sudoku Problem Generating logic with exactly ${solutionCount} solutions` )
     // while there exists elements in nonZeroIndices, run a loop
     while (nonZeroIndices.length>0 || this.isStopClicked){
       // recreate sudoku problem by removing the elements from fully solved sudoku grid
@@ -301,25 +316,34 @@ export class AppComponent {
           //clone the sudoku problem grid and record it in 'generatedSudokuProblemGrids'
           let grid = this.reconstruct(gridDataTemplate, removedItems);
           generatedSudokuProblemGrids.push(JSON.parse(JSON.stringify(grid)));
-      }else{
-        // if solved solution's count doesnt match the 'solutionCount', then reset solution and try again
-        this.done = false;
-        this.solutions=[];
-      }
+        }else{
+          // if solved solution's count doesnt match the 'solutionCount', then reset solution and try again
+          this.done = false;
+          this.solutions=[];
+        }
+        this.setMessage(`Eliminated ${removedItems.length} elements. Found ${generatedSudokuProblemGrids.length} Sudoku Problem Grids with exactly ${solutionCount} solutions`);
     }
     // Choose one generated Sudoku problem and render on screen.
     this.gridData = generatedSudokuProblemGrids[generatedSudokuProblemGrids.length-1];
     this.generateTemplate();
     this.isGeneratingSudokuProblemDisabled=false;
+    if(generatedSudokuProblemGrids.length==0){
+      this.setMessage("Not able to generate Sudoku Problem Grid based on given criteria")
+    }
   }
 
   // On an empty grid, run solving algorithm and collect solutions equal to 'maxSolution' count
   // and select a random solution as basis for Sudoku Problem Grid generation
   async generateRandomGrid(maxSolution){
+    this.setMessage(`Generating ${maxSolution} fully qualified Sudoku Solution Grids`);
     await this.evaluateAndSolve(maxSolution);
     let randomIdx = this.getRandomNumber(this.solutions.length);
+    this.setMessage(`Selecting random Sudoku Solution Grid`);
     this.gridData = this.solutions[randomIdx];
   }
 
+  setMessage(msg){
+    this.message = msg;
+  }
 
 }

@@ -1,13 +1,37 @@
 <mat-toolbar color="primary">
   <span>S U D O K U</span>
+  <span class="credit">by Murlidhar Varma</span>
 </mat-toolbar>
 
 <div class="action-container">
-  <button mat-raised-button color="primary" (click)="generateSudokuPuzzle(SUDOKU_PROBLEM_GRID_MAX_SOLUTION)" [disabled]="isSolveDisabled || isGeneratingSudokuProblemDisabled">Generate</button>
-  <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled || isGeneratingSudokuProblemDisabled" style="margin-left:10px;">Solve</button>
-  <button mat-raised-button color="primary" (click)="stopFindingSolutions()" [disabled]="!isSolveDisabled" style="margin-left:10px;">Stop</button>
-  <button mat-raised-button color="primary" (click)="reset()" [disabled]="isSolveDisabled"  style="margin-left:10px;">Reset</button>
+  <span class="action">
+    <mat-form-field style="width:150px;margin-right: 10px;">
+      <mat-label>Grid Size</mat-label>
+      <mat-select [value]="GRID_SIZE" (selectionChange)="onGridSizeChange($event)">
+        <mat-option *ngFor="let gridSize of GRID_SIZE_LIST" [value]="gridSize.value">
+          {{gridSize.label}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field style="width:100px">
+      <mat-label>Exact Solution Count</mat-label>
+      <mat-select [(ngModel)]="SUDOKU_PROBLEM_GRID_MAX_SOLUTION" >
+        <mat-option *ngFor="let maxSol of [1,2]" [value]="maxSol">
+          {{maxSol}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button style="margin: 10px 10px;" mat-raised-button color="primary" (click)="generateSudokuPuzzle(SUDOKU_PROBLEM_GRID_MAX_SOLUTION)" [disabled]="isSolveDisabled || isGeneratingSudokuProblemDisabled">Generate</button>
+  </span>
+  
+  <span class="action">
+    <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled || isGeneratingSudokuProblemDisabled" style="margin:10px 10px;" >Solve</button>
+    <button mat-raised-button color="primary" (click)="stopFindingSolutions()" [disabled]="!isSolveDisabled" style="margin:10px 10px;">Stop</button>
+    <button mat-raised-button color="primary" (click)="reset()" [disabled]="isSolveDisabled"  style="margin:10px 10px;">Reset</button>
+    <mat-checkbox  color="primary"  [(ngModel)]="isVisualizationOn"  [labelPosition]="'after'" style="color:white;margin-left: 10px;">Visualize</mat-checkbox>
+  </span>
 </div>
+
 <div class="content-container">
   <div class="sudoku-container">
 
@@ -30,7 +54,7 @@
     </div >
   </div>
   <div class="solutions" *ngIf="solutions.length>0">
-    <div class="solutions-counter">Found {{solutions.length}} solutions</div>
+    <div class="solutions-counter">{{message}}</div>
     <div class="solutions-container">
       <span class="solution-container" *ngFor="let solution of solutions; let solIdx = index">
         <span class="solution-container-title">{{'Solution '+(solIdx+1)}}</span>

@@ -1,5 +1,13 @@
 .mat-toolbar.mat-primary {
     top: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.credit{
+    float: right;
+    font-size: 0.6em;
 }
 
 .content-container{
@@ -22,8 +30,10 @@
 }
 
 .action-container{
-    // display: grid;
-    // place-content: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     margin: 10px 10px;
 }
 
