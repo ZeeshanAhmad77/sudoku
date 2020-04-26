@@ -2,11 +2,14 @@
   <span>S U D O K U</span>
 </mat-toolbar>
 
+<div class="action-container">
+  <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled">Solve</button>
+  <button mat-raised-button color="primary" (click)="stopFindingSolutions()" [disabled]="!isSolveDisabled" style="margin-left:10px;">Stop</button>
+  <button mat-raised-button color="primary" (click)="reset()" [disabled]="isSolveDisabled"  style="margin-left:10px;">Reset</button>
+</div>
 <div class="content-container">
-  <div class="action-container">
-    <button mat-raised-button color="primary" (click)="solveSudoku()" [disabled]="isSolveDisabled">Solve</button>
-  </div>
   <div class="sudoku-container">
+
     <div class="row" *ngFor="let row of gridData; let rowIdx=index">
       <span [ngClass]="{'cell': true, 
                         'cell-fixed': (template[rowIdx][cellIdx] == 1),
@@ -17,12 +20,23 @@
                       }" 
             *ngFor="let cell of row;let cellIdx=index">
         <span *ngIf="template[rowIdx][cellIdx]==0" [ngClass]="{'highlight-cell':(rowProcess==rowIdx && colProcess == cellIdx)}">
-          <input class="inp" [(ngModel)]="gridData[rowIdx][cellIdx]" type="text" maxlength="2" (keypress)="onlyNumberKey($event)"/>
+          <input class="inp" [(ngModel)]="gridData[rowIdx][cellIdx]" type="text" maxlength="1" (keypress)="onlyNumberKey($event)" (change)="onChange($event)"/>
         </span>
         <span *ngIf="template[rowIdx][cellIdx]!=0">
           {{cell}}
         </span>
       </span> 
     </div >
+  </div>
+  <div class="solutions">
+    <div class="solutions-counter">Found {{solutions.length}} solutions</div>
+    <div class="solutions-container">
+      <span class="solution-container" *ngFor="let solution of solutions; let solIdx = index">
+        <span class="solution-container-title">{{'Solution '+(solIdx+1)}}</span>
+        <div class="solution-row"  *ngFor="let solRow of solution; let solRowIdx=index">
+          <span [ngClass]="{'solution-cell': true, 'solution-cell-fixed': (template[solRowIdx][solColIdx]==1)}"  *ngFor="let solCell of solRow; let solColIdx=index">{{solCell}}</span>
+        </div>
+      </span>
+    </div>
   </div>
 </div>

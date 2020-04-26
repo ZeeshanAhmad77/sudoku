@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   COUNT = 0;
-  GRID_SIZE=3;
+  GRID_SIZE=2;
 
   GRID_LENGTH = this.GRID_SIZE * this.GRID_SIZE;
   done: boolean=false;
@@ -23,27 +23,25 @@ export class AppComponent {
     [0,0,0,1,7,0,0,3,0]
   ];
 
-  // gridData = [
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0],
-  //   [0,0,0,0,0,0,0,0,0]
-  // ];
-
   template=[];
   rowProcess=-1;
   colProcess=-1;
 
+  solutions=[];
   isSolveDisabled=false;
+  isStopFindingSolutions=false;
 
   constructor(){
-    // this.gridData = this.generateEmptyGrid();
+    this.reset();
+  }
 
+  reset(){
+    this.gridData = this.generateEmptyGrid();
+    this.generateTemplate();
+  }
+
+  generateTemplate(){
+    this.template=[];
     for(let y=0; y < this.GRID_LENGTH; y++){
       this.template[y]=[];
       for(let x=0; x < this.GRID_LENGTH; x++){
@@ -131,12 +129,18 @@ export class AppComponent {
     }
 
     async solveSudoku(){
+      this.generateTemplate();
+      this.isStopFindingSolutions=false;
       this.isSolveDisabled = true;
       this.done =false;
+      this.solutions=[];
       await this.evaluateAndSolve();
       this.rowProcess=-1;
       this.colProcess=-1;
       this.isSolveDisabled = false;
+      if(this.solutions && this.solutions!=null && this.solutions.length>0){
+        this.gridData=this.solutions[0];
+      }
     }
 
     // method to solve sudoku problem
@@ -160,20 +164,29 @@ export class AppComponent {
         }
       }
 
-      this.done=true;
+      // this.done=true;
+      this.solutions.push(JSON.parse(JSON.stringify(this.gridData)));
+      if(this.isStopFindingSolutions){
+        this.done=true;
+      }
     }
   
   async onValueChange(row, col){
     this.rowProcess=row;
     this.colProcess=col;
-    await this.sleep(5);
+    await this.sleep(2);
   }
 
   onlyNumberKey(event) {
-    return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 49 && event.charCode <= 57;
+    // (event.charCode == 8 || event.charCode == 0) ? null : 
+    return event.charCode >= 49 && event.charCode <= 57;
   }
 
   sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  stopFindingSolutions(){
+    this.isStopFindingSolutions=true;
   }
 }
