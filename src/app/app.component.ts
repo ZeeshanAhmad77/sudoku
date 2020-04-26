@@ -37,6 +37,7 @@ export class AppComponent {
 
   reset(){
     this.gridData = this.generateEmptyGrid();
+    this.solutions=[];
     this.generateTemplate();
   }
 
@@ -177,9 +178,15 @@ export class AppComponent {
     await this.sleep(2);
   }
 
-  onlyNumberKey(event) {
+  onlyNumberKey(event,row, col) {
     // (event.charCode == 8 || event.charCode == 0) ? null : 
-    return event.charCode >= 49 && event.charCode <= 57;
+    let allowedKeys = (event.which >= 48 && event.which <= 57) || event.which==9;
+    if(allowedKeys && event.which!=9){
+      setTimeout(()=>{
+        this.gridData[row][col]=parseInt(event.key);
+      },100)
+    }
+    return allowedKeys;
   }
 
   sleep = (ms) => {
